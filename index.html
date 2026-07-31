@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lawan Kompeni Digital – Naskah Induk</title>
+
+  <!-- Marked.js -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- JSZip -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    /* ----- Reset & Variables ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #faf9f6;
+      --text: #1e1e1e;
+      --surface: #ffffff;
+      --border: #d0cdc8;
+      --accent: #9c2e2e;
+      --dim: #666;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --font-body: 'Georgia', 'Times New Roman', serif;
+      --font-heading: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      --max-width: 820px;
+      --header-height: 64px;
+      --footer-height: 64px;
+    }
+
+    body.dark {
+      --bg: #1e1e1e;
+      --text: #e6e0d8;
+      --surface: #2b2b2b;
+      --border: #3d3d3d;
+      --accent: #d46a6a;
+      --dim: #aaa;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.7;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: calc(var(--footer-height) + 1rem);
+    }
+
+    /* ----- Sticky Header ----- */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.2rem;
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+      transition: background 0.2s, border 0.2s;
+    }
+
+    .app-header .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-family: var(--font-heading);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+      max-width: none;
+      flex: 1;
+    }
+
+    /* ----- Menu Toggle Button ----- */
+    .menu-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.8rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: var(--text);
+      background: var(--bg);
+      transition: 0.15s;
+      font-family: var(--font-heading);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .menu-toggle:hover {
+      background: var(--border);
+      border-color: var(--accent);
+    }
+
+    /* ----- Dropdown Menu ----- */
+    .menu-dropdown {
+      position: absolute;
+      top: calc(var(--header-height) - 4px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0 0 8px 8px;
+      box-shadow: var(--shadow);
+      min-width: 260px;
+      max-height: calc(100vh - var(--header-height) - 20px);
+      overflow-y: auto;
+      padding: 0.6rem 0;
+      display: none;
+      z-index: 200;
+      transition: background 0.2s;
+    }
+
+    .menu-dropdown.open {
+      display: block;
+    }
+
+    /* Control group (now on top) */
+    .menu-dropdown .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.4rem 1rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.3rem;
+    }
+
+    .menu-dropdown .control-group button,
+    .menu-dropdown .control-group .btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--text);
+      background: var(--bg);
+      transition: 0.15s;
+      font-family: var(--font-heading);
+      white-space: nowrap;
+    }
+
+    .menu-dropdown .control-group button:hover,
+    .menu-dropdown .control-group .btn:hover {
+      background: var(--border);
+      border-color: var(--accent);
+    }
+
+    .menu-dropdown .control-group .zoom-level {
+      font-size: 0.8rem;
+      padding: 0.2rem 0.4rem;
+      min-width: 2.8rem;
+      text-align: center;
+      font-family: var(--font-heading);
+      color: var(--dim);
+    }
+
+    /* TOC section (now below controls) */
+    .menu-dropdown .section-title {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--dim);
+      padding: 0.4rem 1rem 0.2rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.3rem;
+    }
+
+    .menu-dropdown .toc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .menu-dropdown .toc-list li {
+      padding: 0;
+      margin: 0;
+    }
+
+    .menu-dropdown .toc-list a {
+      display: block;
+      padding: 0.4rem 1rem;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      transition: 0.1s;
+      font-family: var(--font-heading);
+    }
+
+    .menu-dropdown .toc-list a:hover {
+      background: var(--bg);
+      color: var(--accent);
+    }
+
+    .menu-dropdown .toc-list a.active {
+      background: var(--bg);
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* Header inner for relative positioning */
+    .header-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    /* ----- Main Container ----- */
+    .main-container {
+      flex: 1;
+      max-width: var(--max-width);
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 1rem;
+    }
+
+    /* ----- Book Content ----- */
+    .book-content {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 2rem 2.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: background 0.2s, border 0.2s;
+      font-size: 1rem;
+      line-height: 1.7;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .book-content h1,
+    .book-content h2,
+    .book-content h3,
+    .book-content h4 {
+      font-family: var(--font-heading);
+      margin-top: 1.8rem;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--text);
+    }
+
+    .book-content h1 {
+      font-size: 2rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.3rem;
+    }
+
+    .book-content h2 {
+      font-size: 1.6rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.2rem;
+    }
+
+    .book-content h3 {
+      font-size: 1.3rem;
+    }
+
+    .book-content p {
+      margin: 0.8rem 0;
+    }
+
+    .book-content ul,
+    .book-content ol {
+      margin: 0.8rem 0 0.8rem 1.5rem;
+    }
+
+    .book-content li {
+      margin: 0.3rem 0;
+    }
+
+    .book-content blockquote {
+      border-left: 4px solid var(--accent);
+      padding-left: 1.2rem;
+      margin: 1rem 0;
+      color: var(--dim);
+      background: var(--bg);
+      padding: 0.8rem 1.2rem;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .book-content blockquote p {
+      margin: 0;
+    }
+
+    .book-content code {
+      background: var(--bg);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+      border: 1px solid var(--border);
+    }
+
+    .book-content pre {
+      background: var(--bg);
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .book-content a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .book-content a:hover {
+      text-decoration: none;
+    }
+
+    .book-content hr {
+      border: none;
+      border-top: 2px dashed var(--border);
+      margin: 2rem 0;
+    }
+
+    .book-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+
+    .book-content th,
+    .book-content td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .book-content th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+
+    /* ----- Floating Bottom Navigation ----- */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+      height: var(--footer-height);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1rem;
+      gap: 0.8rem;
+      transition: background 0.2s, border 0.2s;
+    }
+
+    .bottom-nav .nav-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 1.2rem;
+      cursor: pointer;
+      color: var(--text);
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .bottom-nav .nav-btn:hover {
+      background: var(--border);
+      border-color: var(--accent);
+    }
+
+    .bottom-nav .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .bottom-nav .page-indicator {
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      color: var(--dim);
+      min-width: 4rem;
+      text-align: center;
+    }
+
+    /* Download ZIP button in bottom nav (next to Next) */
+    .bottom-nav .zip-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      color: var(--text);
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .bottom-nav .zip-btn:hover {
+      background: var(--border);
+      border-color: var(--accent);
+    }
+
+    /* ----- Responsive ----- */
+    @media (max-width: 640px) {
+      .app-header {
+        padding: 0 0.8rem;
+        height: auto;
+        min-height: var(--header-height);
+      }
+      .app-header .brand {
+        font-size: 0.95rem;
+      }
+      .menu-toggle {
+        font-size: 0.95rem;
+        padding: 0.2rem 0.6rem;
+      }
+      .menu-dropdown {
+        min-width: 200px;
+        right: 0;
+        left: auto;
+      }
+      .book-content {
+        padding: 1.2rem 1rem;
+      }
+      .book-content h1 {
+        font-size: 1.6rem;
+      }
+      .book-content h2 {
+        font-size: 1.3rem;
+      }
+      .book-content h3 {
+        font-size: 1.1rem;
+      }
+      .main-container {
+        padding: 0.8rem 0.5rem;
+      }
+      .bottom-nav {
+        gap: 0.4rem;
+        padding: 0 0.5rem;
+        flex-wrap: nowrap;
+      }
+      .bottom-nav .nav-btn {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.8rem;
+      }
+      .bottom-nav .page-indicator {
+        font-size: 0.8rem;
+        min-width: 3rem;
+      }
+      .bottom-nav .zip-btn {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.8rem;
+      }
+      .menu-dropdown .control-group {
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem 0.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-header .brand {
+        font-size: 0.85rem;
+      }
+      .book-content {
+        padding: 0.8rem 0.8rem;
+      }
+      .book-content h1 {
+        font-size: 1.4rem;
+      }
+      .book-content h2 {
+        font-size: 1.2rem;
+      }
+      .bottom-nav .nav-btn {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.75rem;
+      }
+      .bottom-nav .zip-btn {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.75rem;
+      }
+    }
+
+    /* Smooth scroll */
+    .book-content {
+      scroll-behavior: smooth;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--dim);
+      font-family: var(--font-heading);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header class="app-header" id="appHeader">
+    <div class="header-inner">
+      <div class="brand" id="brandTitle">⚔ Lawan Kompeni Digital – Naskah Induk</div>
+      <button class="menu-toggle" id="menuToggle">☰ Menu</button>
+
+      <!-- Dropdown Menu -->
+      <div class="menu-dropdown" id="menuDropdown">
+        <!-- Controls first -->
+        <div class="control-group">
+          <button id="zoomIn" title="Increase text size">A+</button>
+          <button id="zoomOut" title="Decrease text size">A−</button>
+          <span class="zoom-level" id="zoomLevel">100%</span>
+          <button id="darkToggle" title="Toggle dark/light mode">🌓</button>
+          <button id="downloadMd" title="Download current page as .md">📄 .md</button>
+          <button id="downloadHtml" title="Download current page as .html">📄 .html</button>
+        </div>
+
+        <!-- Table of Contents second -->
+        <div class="section-title">📑 Table of Contents</div>
+        <ul class="toc-list" id="tocList"></ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="main-container">
+    <div class="book-content" id="bookContent">
+      <div class="loading">Loading manuscript...</div>
+    </div>
+  </div>
+
+  <!-- Floating Bottom Navigation -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-btn" id="prevBtn" disabled>⬅ Previous</button>
+    <span class="page-indicator" id="pageIndicator">1 / 21</span>
+    <button class="nav-btn" id="nextBtn">Next ➡</button>
+    <button class="zip-btn" id="downloadAllZip" title="Download all files as ZIP">📦 ZIP</button>
+  </nav>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // --------------------------------------------------------------
+      // 1. FILE LIST (based on frontmatter order)
+      // --------------------------------------------------------------
+      const FILES = [
+        { id: 'NI01-cover', title: 'Cover - Lawan Kompeni Digital', file: 'NI01-cover.md' },
+        { id: 'NI02-daftarisi', title: 'Daftar Isi - Naskah Induk Gerakan', file: 'NI02-daftarisi.md' },
+        { id: 'NI03-pengantar', title: 'Pengantar - Naskah Induk Gerakan', file: 'NI03-pengantar.md' },
+        { id: 'NI04-bagian1', title: 'Bagian 1 — Posisi Gerakan: Siapa Kawan, Siapa Lawan', file: 'NI04-bagian1.md' },
+        { id: 'NI05-bagian2', title: 'Bagian 2 — Poros Tuntutan', file: 'NI05-bagian2.md' },
+        { id: 'NI06-bagian3', title: 'Bagian 3 — Penjabaran Detail Tuntutan dan Isu Turunan', file: 'NI06-bagian3.md' },
+        { id: 'NI07-bagian4', title: 'Bagian 4 — Bentuk Aksi', file: 'NI07-bagian4.md' },
+        { id: 'NI08-bagian5', title: 'Bagian 5 — Strategi Pertahanan Platform dan Sikap Gerakan', file: 'NI08-bagian5.md' },
+        { id: 'NI09-bagian6', title: 'Bagian 6 — Jalur Institusional, Advokasi, dan Tekanan Publik', file: 'NI09-bagian6.md' },
+        { id: 'NI10-bagian7', title: 'Bagian 7 — Analisis Ekonomi dan Politik', file: 'NI10-bagian7.md' },
+        { id: 'NI11-bagian8', title: 'Bagian 8 — Usulan Arah Kebijakan dan Perubahan Aturan', file: 'NI11-bagian8.md' },
+        { id: 'NI12-bagian9', title: 'Bagian 9 — Arah Gerakan', file: 'NI12-bagian9.md' },
+        { id: 'NI13-penutup', title: 'Penutup', file: 'NI13-penutup.md' },
+        { id: 'NI14-lampirana', title: 'Lampiran A — Glosarium Lengkap Gerakan', file: 'NI14-lampirana.md' },
+        { id: 'NI15-lampiranb', title: 'Lampiran B — Usulan Rancangan Undang-Undang Kemitraan Digital', file: 'NI15-lampiranb.md' },
+        { id: 'NI16-lampiranc', title: 'Lampiran C — Gambaran Teknis Penerapan RUU', file: 'NI16-lampiranc.md' },
+        { id: 'NI17-lampirand', title: 'Lampiran D — Panduan Aksi Lapangan dan Pengorganisasian Gerakan', file: 'NI17-lampirand.md' },
+        { id: 'NI18-lampirane', title: 'Lampiran E — Struktur Ride Hailing Kolektif', file: 'NI18-lampirane.md' },
+        { id: 'NI19-lampiranf', title: 'Lampiran F — Strategi Pertahanan Platform dan Antisipasi Hukum', file: 'NI19-lampiranf.md' },
+        { id: 'NI20-lampirang', title: 'Lampiran G — Panduan Pelaporan, Advokasi, dan Dokumentasi', file: 'NI20-lampirang.md' },
+        { id: 'NI21-lampiranh', title: 'Lampiran H — Tanya Jawab Permasalahan Platform Digital', file: 'NI21-lampiranh.md' }
+      ];
+
+      // --------------------------------------------------------------
+      // 2. STATE
+      // --------------------------------------------------------------
+      let currentIndex = 0;
+      let rawCache = {};
+      let parsedCache = {};
+      let currentZoom = 1.0;
+      const MIN_ZOOM = 0.6;
+      const MAX_ZOOM = 1.8;
+      let isDark = false;
+
+      const contentEl = document.getElementById('bookContent');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const pageIndicator = document.getElementById('pageIndicator');
+      const brandTitle = document.getElementById('brandTitle');
+      const tocList = document.getElementById('tocList');
+      const menuToggle = document.getElementById('menuToggle');
+      const menuDropdown = document.getElementById('menuDropdown');
+      const zoomLevel = document.getElementById('zoomLevel');
+      const darkToggle = document.getElementById('darkToggle');
+
+      // --------------------------------------------------------------
+      // 3. HELPER FUNCTIONS
+      // --------------------------------------------------------------
+
+      // Parse frontmatter
+      function parseFrontMatter(markdown) {
+        const match = markdown.match(/^---\n([\s\S]*?)\n---\n/);
+        if (!match) {
+          return { frontmatter: {}, content: markdown };
+        }
+        const frontmatter = {};
+        const lines = match[1].split('\n');
+        for (const line of lines) {
+          const sep = line.indexOf(':');
+          if (sep > 0) {
+            const key = line.slice(0, sep).trim();
+            let val = line.slice(sep + 1).trim();
+            if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+            if (val.startsWith("'") && val.endsWith("'")) val = val.slice(1, -1);
+            frontmatter[key] = val;
+          }
+        }
+        const content = markdown.slice(match[0].length);
+        return { frontmatter, content };
+      }
+
+      // Render markdown to HTML
+      function renderMarkdown(markdown) {
+        return marked.parse(markdown, { breaks: true, gfm: true });
+      }
+
+      // Get index by filename
+      function getIndexByFile(fileName) {
+        return FILES.findIndex(f => f.file === fileName);
+      }
+
+      // Get current file object
+      function getCurrentFile() {
+        return FILES[currentIndex] || null;
+      }
+
+      // Update navigation UI
+      function updateNav() {
+        const total = FILES.length;
+        pageIndicator.textContent = `${currentIndex + 1} / ${total}`;
+        prevBtn.disabled = (currentIndex === 0);
+        nextBtn.disabled = (currentIndex === total - 1);
+        const file = getCurrentFile();
+        if (file) {
+          brandTitle.textContent = `⚔ ${file.title}`;
+        }
+        // Update TOC active state
+        const links = tocList.querySelectorAll('a');
+        links.forEach((a, idx) => {
+          a.classList.toggle('active', idx === currentIndex);
+        });
+        // Update URL hash
+        if (file) {
+          const hash = `#file=${encodeURIComponent(file.file)}`;
+          if (window.location.hash !== hash) {
+            history.pushState(null, '', hash);
+          }
+        }
+      }
+
+      // --------------------------------------------------------------
+      // 4. LOAD & DISPLAY FILE
+      // --------------------------------------------------------------
+
+      function loadFileByIndex(index) {
+        if (index < 0 || index >= FILES.length) return;
+        const file = FILES[index];
+        if (!file) return;
+
+        const fileName = file.file;
+
+        if (parsedCache[fileName]) {
+          displayParsed(fileName, parsedCache[fileName]);
+          currentIndex = index;
+          updateNav();
+          return;
+        }
+
+        contentEl.innerHTML = `<div class="loading">Loading ${file.title}...</div>`;
+
+        fetch(fileName)
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.text();
+          })
+          .then(raw => {
+            rawCache[fileName] = raw;
+            const parsed = parseFrontMatter(raw);
+            parsedCache[fileName] = parsed;
+            currentIndex = index;
+            displayParsed(fileName, parsed);
+            updateNav();
+          })
+          .catch(err => {
+            contentEl.innerHTML = `
+              <div style="color:var(--accent); padding:2rem; text-align:center;">
+                <h3>Failed to load file</h3>
+                <p>${err.message}</p>
+                <p style="font-size:0.9rem; color:var(--dim);">
+                  Make sure <strong>${fileName}</strong> exists and the server supports fetch.
+                </p>
+              </div>
+            `;
+            updateNav();
+          });
+      }
+
+      function displayParsed(fileName, parsed) {
+        const html = renderMarkdown(parsed.content);
+        contentEl.innerHTML = html;
+        applyZoom();
+        handleInternalLinks();
+        contentEl.scrollTop = 0;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // --------------------------------------------------------------
+      // 5. HANDLE INTERNAL LINKS
+      // --------------------------------------------------------------
+
+      function handleInternalLinks() {
+        const links = contentEl.querySelectorAll('a[href]');
+        for (const a of links) {
+          const href = a.getAttribute('href');
+          if (!href) continue;
+          const mdMatch = href.match(/^([^#]+\.md)(#.*)?$/);
+          if (mdMatch) {
+            const targetFile = mdMatch[1];
+            const anchor = mdMatch[2] || '';
+            a.addEventListener('click', function(e) {
+              e.preventDefault();
+              const idx = getIndexByFile(targetFile);
+              if (idx !== -1) {
+                loadFileByIndex(idx);
+                if (anchor) {
+                  setTimeout(() => {
+                    const targetId = anchor.slice(1);
+                    const el = document.getElementById(targetId);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }
+              } else {
+                window.location.href = href;
+              }
+            });
+          }
+        }
+      }
+
+      // --------------------------------------------------------------
+      // 6. ZOOM
+      // --------------------------------------------------------------
+
+      function applyZoom() {
+        const scale = currentZoom;
+        contentEl.style.fontSize = (1 * scale) + 'rem';
+        zoomLevel.textContent = Math.round(scale * 100) + '%';
+      }
+
+      function changeZoom(delta) {
+        let newZoom = currentZoom + delta;
+        if (newZoom < MIN_ZOOM) newZoom = MIN_ZOOM;
+        if (newZoom > MAX_ZOOM) newZoom = MAX_ZOOM;
+        currentZoom = newZoom;
+        applyZoom();
+        localStorage.setItem('lawanKompeniZoom', String(currentZoom));
+      }
+
+      // --------------------------------------------------------------
+      // 7. DARK MODE
+      // --------------------------------------------------------------
+
+      function toggleDark() {
+        isDark = !isDark;
+        document.body.classList.toggle('dark', isDark);
+        localStorage.setItem('lawanKompeniDark', isDark ? '1' : '0');
+      }
+
+      // --------------------------------------------------------------
+      // 8. MENU & TOC
+      // --------------------------------------------------------------
+
+      function buildToc() {
+        tocList.innerHTML = '';
+        FILES.forEach((file, idx) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = '#';
+          a.textContent = file.title;
+          a.addEventListener('click', function(e) {
+            e.preventDefault();
+            loadFileByIndex(idx);
+            menuDropdown.classList.remove('open');
+          });
+          li.appendChild(a);
+          tocList.appendChild(li);
+        });
+      }
+
+      // Toggle menu dropdown
+      menuToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('open');
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', function(e) {
+        const header = document.querySelector('.header-inner');
+        if (!header.contains(e.target)) {
+          menuDropdown.classList.remove('open');
+        }
+      });
+
+      // --------------------------------------------------------------
+      // 9. DOWNLOAD FUNCTIONS
+      // --------------------------------------------------------------
+
+      function downloadCurrentMd() {
+        const file = getCurrentFile();
+        if (!file) return;
+        const raw = rawCache[file.file];
+        if (!raw) {
+          alert('Content not loaded yet. Please load the page first.');
+          return;
+        }
+        const blob = new Blob([raw], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.file;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function downloadCurrentHtml() {
+        const file = getCurrentFile();
+        if (!file) return;
+        const contentHtml = contentEl.innerHTML;
+        const title = file.title;
+        const styles = document.querySelector('style').innerHTML;
+
+        const fullHtml = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${title}</title>
+          <style>${styles}</style>
+          <style>
+            body { padding: 2rem; max-width: 820px; margin: 0 auto; }
+            .book-content { padding: 2rem; }
+            .app-header, .bottom-nav, .menu-dropdown, .menu-toggle { display: none; }
+            .main-container { padding: 0; }
+          </style>
+        </head>
+        <body>
+          <div class="main-container">
+            <div class="book-content">${contentHtml}</div>
+          </div>
+        </body>
+        </html>`;
+
+        const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.file.replace('.md', '.html');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function downloadAllZip() {
+        const zip = new JSZip();
+        const promises = FILES.map(file => {
+          if (rawCache[file.file]) {
+            zip.file(file.file, rawCache[file.file]);
+            return Promise.resolve();
+          } else {
+            return fetch(file.file)
+              .then(res => res.text())
+              .then(text => {
+                rawCache[file.file] = text;
+                zip.file(file.file, text);
+              })
+              .catch(() => {
+                zip.file(file.file, `# Failed to load ${file.file}`);
+              });
+          }
+        });
+
+        Promise.all(promises).then(() => {
+          zip.generateAsync({ type: 'blob' }).then(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'LawanKompeniDigital_NaskahInduk.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          });
+        }).catch(err => {
+          alert('Failed to create ZIP: ' + err.message);
+        });
+      }
+
+      // --------------------------------------------------------------
+      // 10. INITIALIZATION
+      // --------------------------------------------------------------
+
+      function init() {
+        // Restore preferences
+        const savedZoom = localStorage.getItem('lawanKompeniZoom');
+        if (savedZoom) {
+          const z = parseFloat(savedZoom);
+          if (!isNaN(z) && z >= MIN_ZOOM && z <= MAX_ZOOM) currentZoom = z;
+        }
+        const savedDark = localStorage.getItem('lawanKompeniDark');
+        if (savedDark === '1') {
+          isDark = true;
+          document.body.classList.add('dark');
+        }
+
+        buildToc();
+
+        // Event listeners
+        prevBtn.addEventListener('click', () => {
+          if (currentIndex > 0) loadFileByIndex(currentIndex - 1);
+        });
+        nextBtn.addEventListener('click', () => {
+          if (currentIndex < FILES.length - 1) loadFileByIndex(currentIndex + 1);
+        });
+
+        document.getElementById('zoomIn').addEventListener('click', () => changeZoom(0.1));
+        document.getElementById('zoomOut').addEventListener('click', () => changeZoom(-0.1));
+        darkToggle.addEventListener('click', toggleDark);
+
+        document.getElementById('downloadMd').addEventListener('click', downloadCurrentMd);
+        document.getElementById('downloadHtml').addEventListener('click', downloadCurrentHtml);
+        document.getElementById('downloadAllZip').addEventListener('click', downloadAllZip);
+
+        // Determine starting file from URL hash
+        let startFile = null;
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#file=')) {
+          const fileName = decodeURIComponent(hash.slice(6));
+          const idx = getIndexByFile(fileName);
+          if (idx !== -1) startFile = idx;
+        }
+
+        if (startFile !== null) {
+          loadFileByIndex(startFile);
+        } else {
+          loadFileByIndex(0); // cover
+        }
+
+        // Handle hash changes (back/forward)
+        window.addEventListener('hashchange', function() {
+          const h = window.location.hash;
+          if (h && h.startsWith('#file=')) {
+            const fileName = decodeURIComponent(h.slice(6));
+            const idx = getIndexByFile(fileName);
+            if (idx !== -1 && idx !== currentIndex) {
+              loadFileByIndex(idx);
+            }
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+  </script>
+
+</body>
+</html>
