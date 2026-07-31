@@ -12,8 +12,6 @@ description: Naskah induk gerakan Lawan Kompeni Digital, disertai manifesto, tun
 
 ## Manifesto, Tuntutan, Arah Gerakan, dan Lampiran Aksi
 
-> Harga pas, nyawa pas-pasan.
-
 **Dicetak pada: 01 Agustus 2026**
 
 Dokumen ini adalah naskah induk gerakan Lawan Kompeni Digital, disertai lampiran-lampiran panduan aksi, kerangka advokasi, glosarium, serta bahan awal untuk pembacaan publik, akademik, politik, dan regulasi.
